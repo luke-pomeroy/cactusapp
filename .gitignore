@@ -5,6 +5,12 @@
 __pycache__
 db.sqlite3
 media
+static/admin
+static/camera_imagefield
+static/django_tables2
+static/import_export
+static/versatileimagefield
+static/geoposition
 
 # Backup files # 
 *.bak 
