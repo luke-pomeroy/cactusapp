@@ -1,0 +1,38 @@
+{% load crispy_forms_tags %}
+{% load static %}
+<div>
+{{ formset.management_form|crispy }}
+
+    {% for form in formset.forms %}
+            <div class="{% cycle 'row1' 'row2' %} formset_row-{{ formset.prefix }}" style="width:100%;">
+                {{ form.media }}
+                {% for field in form.visible_fields %}
+                <div>
+                    {# Include the hidden fields in the form #}
+                    {% if forloop.first %}
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                    {% endif %}
+                    {{ field.errors.as_ul }}
+                    {{ field|as_crispy_field }}
+                </div>
+                {% endfor %}
+            </div>
+            <hr>    
+    {% endfor %}
+</div>
+<br>
+</script>
+<script src="{% static 'catalogue/jquery.formset.js' %}">
+</script>
+<script type="text/javascript">
+    $('.formset_row-{{ formset.prefix }}').formset({
+        addText: 'add another',
+        deleteText: 'remove',
+        prefix: '{{ formset.prefix }}',
+        added: function() {
+            $(document).trigger('formset:added', '.formset_row-{{ formset.prefix }}');
+        }
+    });
+</script>

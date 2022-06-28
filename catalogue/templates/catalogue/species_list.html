@@ -1,0 +1,46 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load render_table from django_tables2 %}
+{% load bootstrap3 %}
+
+
+
+  <div class="card">
+      <div class="card-header">
+          Species List
+      </div>
+      <div class="card-body">
+        <div class="row">
+          {% if filter %}
+              <form action="" method="get" class="form form-inline" style="padding-left:10px;">
+                  {% bootstrap_form filter.form %}
+                  <div class="form-group">
+                    <label class="control-label" for="id_per_page">Per Page</label>
+                    <select name="per_page" class="form-control" title="" id="id_per_page" multiple="">
+                      <option value="30" {% if request.GET.per_page == "30" %}selected{% endif %}>30 per page</option>
+                      <option value="100" {% if request.GET.per_page == "100" %}selected{% endif %}>100 per page</option>
+                    </select>
+                  </div>
+                  {% bootstrap_button 'filter' %}
+              </form>
+          {% endif %}
+        </div>
+        <div class="container" style="padding-top:20px;">
+          {% render_table table %}
+        </div>
+        
+      </div>
+  </div>
+ 
+  <style>
+    .form-inline label {
+       font-weight: bold;
+     }
+ 
+   .form-inline .form-group {
+       flex-direction: column;
+       align-items: flex-start;
+     }
+  </style>
+{% endblock %}

@@ -1,0 +1,42 @@
+@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+.container {
+    overflow-x: auto;
+}
+
+.pagination {
+    display: inline-block;
+    text-align: center;
+  }
+  
+.pagination a {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+  }
+
+.pagination a.active {
+    background-color: #527a86;
+    color: white;
+  }
+  
+.pagination a:hover:not(.active) {background-color: #ddd;}
+
+.center {
+    text-align: center;
+  }
+
+div.camera-imagefield {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-width: 300px;
+    min-height: 200px;
+    background-color: #eee;
+    position: relative;
+
+}
+
+.btn btn-default {
+    margin-block: 10px;
+}

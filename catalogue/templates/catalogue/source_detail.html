@@ -1,0 +1,109 @@
+{% extends "base_generic.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col-md-12" style="margin-bottom:20px;">
+          {% if pagination.prev %}
+          <a class="btn btn-secondary float-left" href="{% url 'source-detail' pagination.prev.pk %}" role="button">Previous</a>
+          {% endif %}
+          {% if pagination.next %}
+          <a class="btn btn-secondary float-right" href="{% url 'source-detail' pagination.next.pk %}" role="button">Next</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-9">
+          <h1><b>{{ source.name }}</b> </h1>
+        </div>
+        <div class="col-md-3">
+          <h2>
+            <button type="button" class="btn btn-outline-danger float-left">
+              <a href="{% url 'source-delete' source.pk %}">Delete Source</a>
+            </button>
+            <button type="button" class="btn btn-outline-primary float-right">
+              <a href="{% url 'source-update' source.pk %}">Edit Source</a>
+            </button>
+          </h2>
+        </div>
+      </div>
+      {% if source.species %}
+          <h4><a href="{% url 'species-detail' source.species.pk %}"><i>{{ source.species }}</i></a></h4>
+      {% else %}
+          <h4><a><i>{{ source.species }}</i></a></h4>
+      {% endif %}
+      <h6>{{ source.uuid }}</h6>
+    </div>
+    <div class="card-body">
+      <div class="row">
+          <div class="col-md-4">
+            <p><strong>Seed count:</strong> {{ source.seed_count }}</p>
+            <p><strong>End count:</strong> {{ source.end_count }}</p>
+          </div>
+          <div class="col-md-4">
+            <p><strong>Obtained from:</strong> {{ source.obtained_from }}</p>
+            <p><strong>Cost:</strong> £ {{ source.cost }}</p>
+          </div>
+          <div class="col-md-4">
+            <p><strong>Purchase date:</strong> {{ source.purchase_date }}</p>
+            <p><strong>Supplier reference:</strong> {{ source.supplier_reference}}</p>
+          </div>
+      </div>
+      <div class="row">
+          <div class="col-md-4">
+            <p><strong>Sowing date:</strong> {{ source.date_sown }}</p>
+          </div>
+          <div class="col-md-4">
+            <p><strong>Status:</strong> {{ source.get_status_display }}</p>
+          </div>
+          <div class="col-md-4">
+            <p><strong>Sowing method:</strong> {{ source.sowing_method }}</p>
+            <p><strong>Soil type:</strong> {{ source.soil_type }}</p>
+          </div>
+      </div>
+      
+      {% if not source.species %}
+      <div class="row">
+        <div class="col-md-12">
+          <form method = "post" enctype="multipart/form-data">
+            {% crispy form %}
+           </form>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="row justify-content-center" style="margin-left:20px;margin-right:20px;margin-top:10px;">
+        {% for photo in source.photos.all %}
+          <div class="card" style="width: 15rem;">
+            <a href ="/media/{{ photo.image }}"><img class="card-img-top" src="{{ photo.image.crop.200x200 }}"  alt="Card image cap"></a>
+            <div class="card-body">
+              <p style="width: 100%; text-align: center;"><small><i>{{ photo.caption }}</i></small></p>
+            </div>
+          </div>
+          {% if forloop.counter|divisibleby:4 %}
+            </div>
+            <div class="row justify-content-center" style="margin-left:20px;margin-right:20px;margin-top:10px;">
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="row justify-content-center" style="margin-left:20px;margin-right:20px;margin-top:10px;">
+        {% for photo in source.species.photos.all %}
+          <div class="card" style="width: 15rem;">
+            <a href ="/media/{{ photo.image }}"><img class="card-img-top" src="{{ photo.image.crop.200x200 }}"  alt="Card image cap"></a>
+            <div class="card-body">
+              <p style="width: 100%; text-align: center;"><small><i>{{ photo.caption }}</i></small></p>
+            </div>
+          </div>
+          {% if forloop.counter|divisibleby:4 %}
+            </div>
+            <div class="row justify-content-center" style="margin-left:20px;margin-right:20px;margin-top:10px;">
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

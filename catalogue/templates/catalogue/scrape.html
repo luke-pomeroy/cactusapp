@@ -1,0 +1,18 @@
+{% extends "base_generic.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% load static %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            Create Species from Llifle.com URL
+        </div>
+        <div class="card-body">
+            <form method = "post" enctype="multipart/form-data">
+             {% crispy form %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+

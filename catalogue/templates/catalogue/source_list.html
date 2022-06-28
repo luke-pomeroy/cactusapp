@@ -1,0 +1,107 @@
+{% extends "base_generic.html" %}
+{% block content %} 
+{% load i18n %}
+{% load django_tables2 %}
+{% load bootstrap3 %}
+
+  <div class="card">
+      <div class="card-header">
+          Source List
+          <a class="btn btn-primary pull-right {% if request.GET.date_sown == None %}disabled{% endif %}" role="button" target="_blank" href ="/catalogue/sources/labels/?date_sown={{ request.GET.date_sown }}">Export Plant Labels for Date Sown</a>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          {% if filter %}
+              <form action="" method="get" class="form form-inline" style="padding-left:10px; padding-right:10px;">
+                  {% bootstrap_form filter.form %}
+                  <div class="form-group">
+                    <label class="control-label" for="id_view">View Type</label>
+                    <select name="view" class="form-control" title="" id="id_view" multiple="">
+                      <option value="GALLERY" {% if request.GET.view == "GALLERY" %}selected{% endif %}>Gallery view</option>
+                      <option value="TABLE" {% if request.GET.view == "TABLE" %}selected{% endif %}>Table view</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label" for="id_per_page">Per Page</label>
+                    <select name="per_page" class="form-control" title="" id="id_per_page" multiple="">
+                      <option value="30" {% if request.GET.per_page == "30" %}selected{% endif %}>30 per page</option>
+                      <option value="100" {% if request.GET.per_page == "100" %}selected{% endif %}>100 per page</option>
+                    </select>
+                  </div>
+                  {% bootstrap_button 'filter'%}
+              </form>
+          {% endif %}
+        </div>
+        <div class="container" style="padding-top:20px;">
+          <div class = "row">
+            {% if request.GET.view == "GALLERY" %}
+              <div class="card-columns" style="column-count: 4;">
+                {% for row in table.paginated_rows %}
+                  <div class="card" style="width: 15rem;">
+                    <a href ="/catalogue/species/{{ row.record.species_id }}"><img class="card-img-top" src="{% if row.record.species.primary %}{{row.record.species.primary.image.crop.300x300 }}{% else %}/media/images/no-image.png{% endif %}" alt="Card image cap"></a>
+                    <div class="card-body">
+                      <p style="width: 100%; text-align: center;"><a href="/catalogue/source/{{ row.record.pk }}"><small><i>{{ row.record.name }}</i></small></a></p>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+              {% block pagination %}
+              {% if table.page and table.paginator.num_pages > 1 %}
+              <nav aria-label="Table navigation">
+                  <div class="center">
+                  <div class="pagination">
+                  {% if table.page.has_previous %}
+                      {% block pagination.previous %}
+                              <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">
+                                  <span aria-hidden="true">&laquo;</span>
+                                  {% trans 'previous' %}
+                              </a>
+                      {% endblock pagination.previous %}
+                  {% endif %}
+                  {% if table.page.has_previous or table.page.has_next %}
+                      {% block pagination.range %}
+                          {% for p in table.page|table_page_range:table.paginator %}
+                                  {% if p == '...' %}
+                                      <a href="#">{{ p }}</a>
+                                  {% else %}
+                                      <a href="{% querystring table.prefixed_page_field=p %}" {% if p == table.page.number %}class="active"{% endif %}>
+                                          {{ p }}
+                                      </a>
+                                  {% endif %}
+                                  </a>
+                          {% endfor %}
+                      {% endblock pagination.range %}
+                  {% endif %}
+      
+                  {% if table.page.has_next %}
+                      {% block pagination.next %}
+                          <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">
+                              {% trans 'next' %}
+                              <span aria-hidden="true">&raquo;</span>
+                          </a>
+                      {% endblock pagination.next %}
+                  {% endif %}
+                  </div>
+              </div>
+              </nav>
+              {% endif %}
+              {% endblock pagination %}
+            {% else %}  
+              {% render_table table %}
+            {% endif %}
+          </div>
+        </div>
+        
+      </div>
+  </div>
+ <style>
+   .form-inline label {
+      font-weight: bold;
+    }
+
+  .form-inline .form-group {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+ </style>
+{% endblock %}

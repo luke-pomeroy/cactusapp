@@ -1,0 +1,54 @@
+.geoposition-widget {
+    width: 100%;
+}
+
+.geoposition-map {
+    position: relative;
+    margin: 6px 0;
+    clear: both;
+}
+
+.geoposition-search {
+    width: 30%;
+    float: right;
+    padding-right: 15px;
+}
+
+.geoposition-search input {
+    width: 100%;
+}
+
+.geoposition-address {
+    line-height: 200%;
+    text-decoration: underline;
+}
+
+.geoposition-results {
+    position: absolute;
+    z-index: 1;
+    margin: 4px 0 0 0 !important;
+    padding: 0 !important;
+    background: white;
+    border: 1px solid #eee;
+    -webkit-box-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    -moz-box-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.geoposition-results li {
+    list-style: none;
+    padding: 4px 8px;
+    border-top: 1px dotted #eee;
+    cursor: pointer;
+}
+
+.geoposition-results li:hover {
+    background-color: #eee;
+}
+.geoposition-results li:first-child {
+    border-top: 0;
+}
+
+.gmnoprint img {
+    max-width: none; 
+}

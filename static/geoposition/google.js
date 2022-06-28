@@ -1,0 +1,189 @@
+if (jQuery != undefined) {
+    if (django ==  undefined) {
+        var django = {
+            'jQuery': jQuery,
+        }
+    } else {
+        if (django['jQuery'] == undefined) {
+            django['jQuery'] = jQuery;
+        }
+    }
+}
+
+
+(function($) {
+
+    $(document).ready(function() {
+        try {
+            var _ = google; // eslint-disable-line no-unused-vars
+        } catch (ReferenceError) {
+            console.log('geoposition: "google" not defined. You might not be connected to the internet.');
+            return;
+        }
+
+        var mapDefaults = {
+            'mapTypeId': google.maps.MapTypeId.ROADMAP,
+            'scrollwheel': false,
+            'streetViewControl': false,
+            'panControl': false
+        };
+
+        var markerDefaults = {
+            'draggable': true,
+            'animation': google.maps.Animation.DROP
+        };
+        $('.geoposition-widget').each(initializeMap);
+
+        $(document).on('formset:added', function(e, inlineEl){
+            $(inlineEl).find('.geoposition-widget').each(initializeMap);
+        });
+
+        function initializeMap() {
+            var $container = $(this),
+                $mapContainer = $container.find('.geoposition-map').length ? $container.find('.geoposition-map') : $('<div class="geoposition-map" />'),
+                $addressRow = $container.find('.geoposition-address').length ? $container.find('.geoposition-address') : $('<div class="geoposition-address" />'),
+                $searchRow = $container.find('.geoposition-search').length ? $container.find('.geoposition-search') : $('<div class="geoposition-search" />'),
+                $searchInput = $searchRow.find('input').length ? $searchRow.find('input') : $('<input>', {'type': 'search', 'placeholder': 'Start typing an address …'}),
+                $latitudeField = $container.find('input.geoposition:eq(0)'),
+                $longitudeField = $container.find('input.geoposition:eq(1)'),
+                latitude = parseFloat($latitudeField.val()) || null,
+                longitude = parseFloat($longitudeField.val()) || null,
+                map,
+                mapLatLng,
+                mapOptions,
+                mapCustomOptions,
+                markerOptions,
+                markerCustomOptions,
+                marker;
+
+            $mapContainer.css('height', $container.attr('data-map-widget-height') + 'px');
+            mapCustomOptions = JSON.parse($container.attr('data-map-options'));
+            markerCustomOptions = JSON.parse($container.attr('data-marker-options'));
+
+            function doSearch() {
+                var gc = new google.maps.Geocoder();
+                $mapContainer.parent().find('ul.geoposition-results').remove();
+                gc.geocode({
+                    'address': $searchInput.val()
+                }, function(results, status) {
+                    if (status == 'OK') {
+                        var updatePosition = function(result) {
+                            if (result.geometry.bounds) {
+                                map.fitBounds(result.geometry.bounds);
+                            } else {
+                                map.panTo(result.geometry.location);
+                                map.setZoom(18);
+                            }
+                            marker.setPosition(result.geometry.location);
+                            google.maps.event.trigger(marker, 'dragend');
+                        };
+                        if (results.length == 1) {
+                            updatePosition(results[0]);
+                        } else {
+                            var $ul = $('<ul />', {'class': 'geoposition-results'});
+                            $.each(results, function(i, result) {
+                                var $li = $('<li />');
+                                $li.text(result.formatted_address);
+                                $li.bind('click', function() {
+                                    updatePosition(result);
+                                    $li.closest('ul').remove();
+                                });
+                                $li.appendTo($ul);
+                            });
+                            $mapContainer.after($ul);
+                        }
+                    }
+                });
+            }
+
+            function doGeocode() {
+                var gc = new google.maps.Geocoder();
+                gc.geocode({
+                    'latLng': marker.position
+                }, function(results) {
+                    $addressRow.text('');
+                    if (results && results[0]) {
+                        $addressRow.text(results[0].formatted_address);
+                    }
+                });
+            }
+
+            var autoSuggestTimer = null;
+            $searchInput.bind('keydown', function(e) {
+                if (autoSuggestTimer) {
+                    clearTimeout(autoSuggestTimer);
+                    autoSuggestTimer = null;
+                }
+
+                // if enter, search immediately
+                if (e.keyCode == 13) {
+                    e.preventDefault();
+                    doSearch();
+                } else {
+                    // otherwise, search after a while after typing ends
+                    autoSuggestTimer = setTimeout(function() {
+                        doSearch();
+                    }, 1000);
+                }
+            }).bind('abort', function() {
+                $(this).parent().find('ul.geoposition-results').remove();
+            });
+
+            if(!$searchRow.find('input').length) {
+                $searchInput.appendTo($searchRow);
+            }
+            
+            $container.append($searchRow, $mapContainer, $addressRow);
+
+            mapLatLng = new google.maps.LatLng(latitude, longitude);
+
+            mapOptions = $.extend({}, mapDefaults, mapCustomOptions);
+
+            if (!(latitude === null && longitude === null && mapOptions['center'])) {
+                mapOptions['center'] = mapLatLng;
+            }
+
+            if (!mapOptions['zoom']) {
+                mapOptions['zoom'] = latitude && longitude ? 15 : 1;
+            }
+
+            map = new google.maps.Map($mapContainer.get(0), mapOptions);
+            $mapContainer[0].map = map;
+            markerOptions = $.extend({}, markerDefaults, markerCustomOptions, {
+                'map': map
+            });
+
+            if (!(latitude === null && longitude === null && markerOptions['position'])) {
+                markerOptions['position'] = mapLatLng;
+            }
+
+            var mapElementWidth = $mapContainer[0].clientWidth;
+            setInterval(function(){
+                if(mapElementWidth !== $mapContainer[0].clientWidth) {
+                    mapElementWidth = $mapContainer[0].clientWidth;
+                    google.maps.event.trigger(map, 'resize');
+                }
+            }, 1500);
+
+            marker = new google.maps.Marker(markerOptions);
+            google.maps.event.addListener(marker, 'dragend', function() {
+                $latitudeField.val(this.position.lat());
+                $longitudeField.val(this.position.lng());
+                doGeocode();
+            });
+            if ($latitudeField.val() && $longitudeField.val()) {
+                google.maps.event.trigger(marker, 'dragend');
+            }
+
+            $latitudeField.add($longitudeField).bind('keyup', function() {
+                var latitude = parseFloat($latitudeField.val()) || 0;
+                var longitude = parseFloat($longitudeField.val()) || 0;
+                var center = new google.maps.LatLng(latitude, longitude);
+                map.setCenter(center);
+                map.setZoom(15);
+                marker.setPosition(center);
+                doGeocode();
+            });
+        }
+    });
+})(django.jQuery);

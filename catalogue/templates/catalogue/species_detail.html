@@ -1,0 +1,166 @@
+{% extends "base_generic.html" %}
+{% block content %}
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col-md-12" style="margin-bottom:20px;">
+          {% if pagination.prev %}
+          <a class="btn btn-secondary float-left" href="{% url 'species-detail' pagination.prev.pk %}" role="button">Previous</a>
+          {% endif %}
+          {% if pagination.next %}
+          <a class="btn btn-secondary float-right" href="{% url 'species-detail' pagination.next.pk %}" role="button">Next</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-8">
+          <h1><b>{{ species.scientific_name }}</b>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-outline-danger float-left" href="{% url 'species-delete' species.pk %}" role="button">Delete Species</a>
+            <a class="btn btn-outline-primary float-right" href="{% url 'species-update' species.pk %}" role="button">Update Species</a>
+        </div>
+      </div>
+      <i>{{species.author}}</i> 
+      <h4><i>{{ species.source }}</i></h4>
+      <p><strong>Family:</strong> {{ species.family }}</p>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-12" style="margin-left:20px;margin-right:20px;width:100%">
+          <p><strong>Sources for this Species</strong></p>
+          {% if species.sources.all|length > 0 %}
+            <div class="table-responsive" style="padding-right: 50px;">
+              <table class="table table-condensed" cellspacing=10>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Supplier</th>
+                    <th>Reference</th>
+                    <th>Seed Count</th>
+                    <th>End Count</th>
+                    <th>Status</th>
+                    <th>Date Sown</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for source in species.sources.all %}
+                    <tr>
+                      <td><p><a href="/catalogue/source/{{ source.pk }}"><strong>{{ source.name }}</strong></a></p></td>
+                      <td>{{ source.obtained_from }}</td>
+                      <td>{{ source.supplier_reference }}</td>
+                      <td>{{ source.seed_count }}</td>
+                      <td>{{ source.end_count }}</td>
+                      <td>{{ source.get_status_display }}</td>
+                      <td>{{ source.date_sown }}</td>
+                    </tr>
+                  {% endfor %}          
+                </tbody>    
+              </table>
+            </div>
+          {% else %}
+            <p>There are no Sources for this Species</p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-3">
+          <p><strong>Genus:</strong> {{ species.genus }}</p>
+        </div>
+        <div class="col-md-3">
+          <p><strong>Specific Epithet:</strong> {{ species.specific_epithet }}</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Common Names:</strong> {{ species.commonname_set.all|join:", " }}</p> 
+          {% if species.commonname.set.all|length > 0 %}
+            <p><strong>Common Names:</strong> {{ species.commonname_set.all|join:", " }}</p> 
+          {% endif %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <p><strong>Llifle: </strong><a href="{{ species.url }}">{{ species.url }}</a></p> 
+        </div>
+      </div>
+      <div class="row justify-content-between" style="margin-left:5px;margin-right:5px;margin-bottom:10px;">
+        <div class="col-md-6"> 
+          <div id="map" style="width: 100%; height: 500px;"></div>
+        </div>
+        <div class="col-md-6">
+          {% for photo in species.photos.all %}
+            {% if forloop.first %}
+              <div style="width: 100%;">
+                <a href ="/media/{{ photo.image }}"><img src="{{ photo.image.crop.500x500 }}"  alt="Card image cap" style="max-width:100%;"></a>
+                <p style="width: 95%; text-align: center;"><small><i>{{ photo.caption }}</i></small></p>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div class="row justify-content-center" style="margin-left:20px;margin-right:20px;margin-top:10px;">
+          {% for photo in species.photos.all %}
+            {% if not forloop.first %}
+              <div class="card" style="width: 15rem;">
+                <a href ="/media/{{ photo.image }}"><img class="card-img-top" src="{{ photo.image.crop.200x200 }}"  alt="Card image cap"></a>
+                <div class="card-body">
+                  <p style="width: 100%; text-align: center;"><small><i>{{ photo.caption }}</i></small></p>
+                </div>
+              </div>
+              {% if forloop.counter|add:"-1"|divisibleby:4 %}
+                </div>
+                <div class="row  justify-content-center" style="margin-left:20px;margin-right:20px;margin-top:10px;">
+              {% endif %}
+            {%endif%} 
+          {% endfor %}
+      </div>
+      <div class="row">
+        <hr>
+        <div class="col-md-12" style="margin-left:20px;margin-right:20px;width:100%">         
+          {% for description in species.speciesdescription_set.all %}
+          <p><strong>{{description.descript_type}}:</strong> {{description.description|safe}}</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="https://maps.google.com/maps/api/js?key=AIzaSyDkrygpZXzJxvajC9zqbv5eKT6HFZqLx5U"></script>
+
+<script type="text/javascript">
+  var locations = {{ locations|safe }};
+  if (locations[0]) {
+    var map_centre_lat = locations[0][1];
+    var map_centre_long = locations[0][2];
+  } else {
+    var map_centre_lat =  47.071876;
+    var map_centre_long =  15.441456;
+  };
+  
+
+  var map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 5,
+    center: new google.maps.LatLng(map_centre_lat, map_centre_long),
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  });
+
+  var infowindow = new google.maps.InfoWindow();
+
+  var marker, i;
+
+  for (i = 0; i < locations.length; i++) {
+    marker = new google.maps.Marker({
+      position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+      map: map
+    });
+
+    google.maps.event.addListener(marker, 'click', (function(marker, i) {
+      return function() {
+        infowindow.setContent(locations[i][0]);
+        infowindow.open(map, marker);
+      }
+    })(marker, i));
+  }
+</script>
+{% endblock %}
+

@@ -1,0 +1,113 @@
+{% extends "base_generic.html" %}
+{% load crispy_forms_tags %}
+{% load bootstrap3 %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <h1>Update All Sources</h1>
+        {% if filter %}
+        <form action="" method="get" class="form form-inline" style="padding-left:10px; padding-right:10px;">
+            {% bootstrap_form filter.form %}
+            {% bootstrap_button 'filter'%}  
+        </form>
+        {% endif %}
+        <div class="card-body">
+            <form method = "post" enctype="multipart/form-data" id="form1">
+                <table id="formset">
+                    {{ formset.management_form|crispy }}
+                    {% csrf_token %}
+                    {% for form in formset.forms %}
+                      {% if forloop.first %}
+                      <thead><tr>
+                        <th>Image</th>
+                        {% for field in form.visible_fields %}
+                        <th>{{ field.label|capfirst }}
+                        {% endfor %}
+                        
+                      </tr></thead>
+                      {% endif %}
+                      <tr>
+                        <td><img class="card-img-top" src="{% if form.instance.species.primary %}{{form.instance.species.primary.image.crop.100x100 }}{% else %}/media/images/no-image.png{% endif %}" alt="Card image cap"></a></td>
+                      {% for field in form.visible_fields %}
+                        <td>
+                        {# Include the hidden fields in the form #}
+                        {% if forloop.first %}
+                              {% for hidden in form.hidden_fields %}
+                              {{ hidden }}
+                              {% endfor %}
+                        {% endif %}
+                          {{ field.errors.as_ul }}
+                            {{field|as_crispy_field}}
+                        </td>
+                      {% endfor %}
+                      </tr>
+                    {% endfor %}    
+                </table>
+                <br>
+                <input type="submit" value="Submit" class="btn btn-success">
+              {% if objects %}
+              <nav aria-label="Table navigation">
+                <div class="center">
+                <div class="pagination">
+                {% if objects.has_previous %}
+                    {% block pagination.previous %}
+                            <a type="submit" onclick="submitForm({{ objects.previous_page_number }}, {{ objects.number }})">
+                                <span aria-hidden="true">&laquo;</span>
+                                {% trans 'previous' %}
+                            </a>
+                    {% endblock pagination.previous %}
+                {% endif %}
+                {% if objects.has_previous or objects.has_next %}
+                    {% block pagination.range %}
+                        {% for p in page_numbers %}
+                          {% if p == '…' %}
+                              <a >{{ p }}</a>
+                          {% else %}
+                              <a type="submit" onclick="submitForm({{ p }}, {{ objects.number }})" {% if p == objects.number %} class="active"{% endif %}>
+                                  {{ p }}
+                              </a>
+                          {% endif %}
+                          </a>
+                        {% endfor %}
+                    {% endblock pagination.range %}
+                {% endif %}
+    
+                {% if objects.has_next %}
+                    {% block pagination.next %}
+                        <a type="submit" onclick="submitForm({{ objects.next_page_number }}, {{ objects.number }})">
+                            {% trans 'next' %}
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    {% endblock pagination.next %}
+                {% endif %}
+            </div>
+            </nav>
+              {% endif %}
+            </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  function submitForm(next_page, page){
+  var queryParams = new URLSearchParams(window.location.search);
+  queryParams.set("page", page);
+  queryParams.set("next_page", next_page);
+  history.replaceState(null, null, "?"+queryParams.toString());
+  document.getElementById("form1").submit();
+  }
+</script>
+<style>
+  .form-inline label {
+     font-weight: bold;
+   }
+
+ .form-inline .form-group {
+     flex-direction: column;
+     align-items: flex-start;
+   }
+</style>
+{% endblock content %}

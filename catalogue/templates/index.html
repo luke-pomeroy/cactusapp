@@ -1,0 +1,15 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>The Species Index</h1>
+  <h2>Dynamic content</h2>
+  <p>The library has the following record counts:</p>
+  <ul>
+    <li><strong>Species:</strong> {{ num_species }}</li>
+    <li><strong>Sources:</strong> {{ num_sources }}</li>
+  </ul>
+{% endblock %}
+
+{% block title %}
+<title>Cactus and Succulent Index</title>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            {% if 'update' in request.resolver_match.url_name %}Update {% else %}New {% endif %}Source
+        </div>
+        <div class="card-body">
+            <form method = "post" enctype="multipart/form-data">
+             {% crispy form %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

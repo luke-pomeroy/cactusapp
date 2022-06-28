@@ -1,0 +1,70 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% load bootstrap3 %}
+{% block content %} 
+
+<div class="row">
+    {% if filter %}
+        <form action="" method="get" class="form form-inline" style="padding-left:10px; padding-right:10px;">
+            {% bootstrap_form filter.form %}
+            {% bootstrap_button 'filter' %}
+        </form>
+    {% endif %}
+  </div>
+<div class="row">
+    <div class="col-md-12">
+            <canvas id="loggerChart1" width="800" height="300"></canvas>
+    </div>
+</div>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.js"></script><script type="text/javascript">
+
+    var config = {
+        type: 'line',
+        data: {
+            labels: {{ labels|safe }},
+            datasets: {{ datasets|safe }},
+        },
+        options: {
+            responsive: true,
+            scales: {
+                xAxes: [
+                {
+                    type: "time",
+                    time: {
+                        displayFormats: {
+                            'minute': 'YYYY-MM-DD  HH:mm',
+                            'hour': 'YYYY-MM-DD  HH:mm',
+                            'day': 'YYYY-MM-DD  HH:mm',
+                            'month': 'YYYY-MM-DD  HH:mm',
+                            'year': 'YYYY-MM-DD  HH:mm',
+                    }
+                    },
+                    ticks: {
+                        autoSkip: true,
+                        maxTicksLimit: 20
+                    }
+                }
+                ]
+            }
+        }
+    };
+    window.onload = function() {
+        var ctx = document.getElementById('loggerChart1').getContext('2d');;
+        window.myPie = new Chart(ctx, config);
+        
+    };      
+    
+</script>
+<style>
+    .form-inline label {
+       font-weight: bold;
+     }
+ 
+   .form-inline .form-group {
+       flex-direction: column;
+       align-items: flex-start;
+     }
+</style>
+{% endblock content %}

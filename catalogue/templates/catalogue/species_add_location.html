@@ -1,0 +1,28 @@
+{% extends "base_generic.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            Update locations for {{species.scientific_name}}
+        </div>
+        <div class="card-body">
+            <form method = "post" enctype="multipart/form-data"> {% csrf_token %}
+            {% crispy form %}
+            </form>
+            {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <b>{{ field }}</b>: {{ error }}
+                {% endfor %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

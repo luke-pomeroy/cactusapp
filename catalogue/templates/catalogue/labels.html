@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>     
+        @page {
+            margin: 0;
+            size: 10cm  1.9cm;
+        }
+        body {
+            margin: 0;
+        }
+        html {
+        align-content: space-around;
+        align-items: flex-start;
+        background: #eef1f5;
+        display: flex;
+        font-family: Barlow Condensed, sans-serif;
+        height: 100%;
+        justify-content: center;
+        }
+        .page {
+        background: #fff;
+        page-break-after: always;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-content: flex-start;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        height: 1.9cm;
+        margin: 0;
+        width: 10cm;
+        }
+        section {
+        box-sizing: border-box;
+        }
+        #label {
+        display: flex;
+        flex-direction: column;
+        height: 1.9cm;
+        justify-content: center;
+        padding: 0 .6cm;
+        }
+        #label .row {
+        display: inline-block;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif, cursive;
+        font-size: 9pt;
+        margin-left: 1px;
+        max-width: 6cm;
+        
+        }
+        #label .row#mainlabel {
+            font-size: 9pt;
+        }
+        #label .row#secondarylabel {
+            font-size: 8pt;
+        }
+        img {
+            position: relative;
+            z-index: 10;
+            right: 60px;
+            max-width: 40px;
+            max-height: 40px;
+            width: auto;
+            margin-right: 65px;
+            height: auto;
+            }
+    </style>
+</head>
+        <body>
+            {% for source in sources %}
+            <div class="page">
+                <section id="label">
+                  <div class="row" id="mainlabel"><strong>{{source.name}}</strong></div>
+                  <div class="row" id="secondarylabel"><label>{{ source.obtained_from }}{% if source.supplier_reference %} ({{source.supplier_reference}}){% endif %} {{source.seed_count}} X {% if source.date_sown %} Sown on {{source.date_sown}}{% endif %}</label></div>
+                </section>
+            </div>
+            {% endfor %}
+        </body>
+</html>
